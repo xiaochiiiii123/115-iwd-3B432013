@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的個人網站</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        header h2 { color: #0f172a; font-size: 20px; letter-spacing: 1px; }
+        
+        nav { margin-top: 15px; }
+        nav a {
+            color: #64748b;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: all 0.2s;
+            padding-bottom: 4px;
+        }
+        nav a:hover { 
+            color: #3b82f6; 
+            font-weight: bold;
+            border-bottom: 2px solid #3b82f6;
+        }
+        
+        /* === 改用 CSS Grid 網格排版，保證絕對等寬等高 === */
+        main {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 強制均分成 3 等分 */
+            gap: 24px;                 /* 卡片之間的間距 */
+            max-width: 1200px;         /* 限制最大寬度，畫面太寬時才不會大得太誇張 */
+            width: 100%;
+            margin: 0 auto;            /* 讓整個網格在畫面中水平置中 */
+            padding: 40px 20px;
+            align-items: stretch;      /* 強制等高 */
+        }
+
+        /* 卡片共用樣式 */
+        .card {
+            scroll-margin-top: 100px;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            width: 100%;
+            
+            /* 讓卡片裡的內容垂直置中對齊 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+        }
+
+        /* 關於我專屬 */
+        .avatar { 
+            width: 120px; height: 120px; 
+            background-color: #e2e8f0; 
+            border-radius: 50%; 
+            margin: 0 auto 20px auto; 
+            overflow: hidden; 
+            border: 3px solid #ffffff; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
+        h1 { color: #0f172a; font-size: 26px; margin-bottom: 8px; font-weight: 700; }
+        .subtitle { color: #3b82f6; font-size: 15px; margin-bottom: 24px; font-weight: 600; letter-spacing: 0.5px; }
+        p.intro { color: #475569; line-height: 1.7; font-size: 15px; text-align: left; }
+
+        /* 聯絡我專屬 */
+        .form-title { color: #0f172a; font-size: 22px; margin-bottom: 24px; text-align: center; font-weight: 700; }
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 6px; color: #475569; font-size: 14px; font-weight: 600; }
+        
+        .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border-radius: 6px; 
+            border: 1px solid #cbd5e1; 
+            background-color: #ffffff; 
+            color: #0f172a; 
+            font-size: 15px; 
+            font-family: inherit; 
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group textarea { resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .submit-btn { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 8px; 
+            border: none; 
+            border-radius: 6px; 
+            background-color: #3b82f6; 
+            color: white; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: background-color 0.2s; 
+        }
+        .submit-btn:hover { background-color: #2563eb; }
+
+        footer { background-color: transparent; text-align: center; padding: 20px; font-size: 13px; color: #94a3b8; }
+
+        /* === 響應式設計 === */
+        /* 平板尺寸：變成兩個一排，最後一個卡片會掉到下一排置中 */
+        @media (max-width: 992px) {
+            main {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+        /* 手機尺寸：變成全部直向排列 */
+        @media (max-width: 768px) {
+            main {
+                grid-template-columns: 1fr; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>我的個人網站</h2>
+        <nav>
+            <a href="#home">首頁</a>
+            <a href="#about">關於我</a>
+            <a href="#contact">聯絡我</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- 區塊 1：首頁 -->
+        <div id="home" class="card">
+            <h1 style="font-size: 28px; margin-bottom: 15px;">歡迎來到我的專屬空間 👋</h1>
+            <p style="color: #64748b; line-height: 1.8; font-size: 16px;">
+                這是一個全新的開始！<br>您可以透過上方導覽列快速跳轉，進一步認識我，或是傳送訊息與我聯絡。
+            </p>
+        </div>
+
+        <!-- 區塊 2：關於我 -->
+        <div id="about" class="card">
+            <div class="avatar">
+                <img src="avatar.png" alt="個人照" onerror="this.style.display='none'">
+            </div>
+            <h1>簡映綺</h1>
+            <div class="subtitle">資管系</div>
+            <p class="intro">
+                喵喵喵
+            </p>
+        </div>
+
+        <!-- 區塊 3：聯絡我 -->
+        <div id="contact" class="card">
+            <h2 class="form-title">聯絡我</h2>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="userName">姓名：</label>
+                    <input type="text" id="userName" name="userName" placeholder="請輸入您的姓名" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email：</label>
+                    <input type="email" id="userEmail" name="userEmail" placeholder="example@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="userMessage">訊息內容：</label>
+                    <textarea id="userMessage" name="userMessage" rows="5" placeholder="有什麼想對我說的嗎？" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">送出訊息</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 簡映綺. All rights reserved.</p>
+    </footer>
+</body>
+</html>
