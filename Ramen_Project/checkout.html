@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>預訂資料填寫 | 一番拉麵</title>
+    <style>
+        body { font-family: '微軟正黑體', sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
+        .form-container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        /* 每一碗拉麵的獨立區塊設計 */
+        .order-item { background-color: #fdfbf7; border: 1px solid #e0d4c8; padding: 15px; border-radius: 6px; margin-bottom: 15px; position: relative; }
+        .order-item h4 { margin-top: 0; color: #d35400; border-bottom: 1px dashed #ccc; padding-bottom: 5px;}
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e;}
+        input[type="text"], input[type="tel"], input[type="time"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em;}
+        
+        .radio-label { font-weight: normal; display: inline-block; margin-right: 15px; cursor: pointer; }
+        
+        /* 新增按鈕與移除按鈕的樣式 */
+        .btn-add { background-color: #3498db; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 25px;}
+        .btn-add:hover { background-color: #2980b9; }
+        .btn-remove { position: absolute; top: 15px; right: 15px; background-color: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em;}
+        
+        .time-highlight { background-color: #fff3e0; padding: 15px; border-left: 4px solid #e67e22; border-radius: 4px; margin-bottom: 20px; }
+        .btn-submit { background-color: #27ae60; color: white; padding: 15px; border: none; border-radius: 4px; width: 100%; font-size: 1.1em; cursor: pointer; font-weight: bold;}
+        .btn-submit:hover { background-color: #2ecc71; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #7f8c8d; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>📝 填寫預訂與取餐資訊</h2>
+    
+    <form action="success.html" method="GET">
+        
+        <label>1. 您的餐點明細</label>
+        
+        <!-- 這是一個容器，用來裝所有的拉麵訂單 -->
+        <div id="order-list">
+            <!-- 預設的第 1 碗拉麵 -->
+            <div class="order-item">
+                <h4>🍜 第 1 碗</h4>
+                <div class="form-group">
+                    <select required>
+                        <option value="">請選擇拉麵口味...</option>
+                        <option value="pork">招牌濃厚豚骨拉麵 (NT$220)</option>
+                        <option value="chicken">松露舒肥雞白湯拉麵 (NT$240)</option>
+                        <option value="beef">炙燒雪花牛醬油拉麵 (NT$260)</option>
+                        <option value="yuzu">柚子鹽味清湯拉麵 (NT$200)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.9em;">客製化選項 (麵條硬度)</label>
+                    <label class="radio-label"><input type="radio" name="noodle_1" value="hard"> 偏硬</label>
+                    <label class="radio-label"><input type="radio" name="noodle_1" value="normal" checked> 正常</label>
+                    <label class="radio-label"><input type="radio" name="noodle_1" value="soft"> 偏軟</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 點擊這個按鈕，會觸發下方的 JavaScript 函數 -->
+        <button type="button" class="btn-add" onclick="addBowl()">＋ 新增一碗拉麵</button>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+
+        <div class="form-group">
+            <label for="name">2. 聯絡人姓名</label>
+            <input type="text" id="name" name="name" placeholder="例如：王小明" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">3. 手機號碼</label>
+            <input type="tel" id="phone" name="phone" placeholder="09xx-xxx-xxx" required>
+        </div>
+
+        <div class="time-highlight">
+            <label for="pickup-time" style="color: #d35400;">4. 預計門市取餐時間 ⏱️</label>
+            <p style="font-size: 0.85em; color: #7f8c8d; margin-top: 0;">※ 餐點製作約需 10~15 分鐘，請選擇稍後的取餐時間。</p>
+            <input type="time" id="pickup-time" name="pickup-time" required>
+        </div>
+
+        <div class="form-group">
+            <label style="font-weight: normal; color: #e74c3c; font-size: 0.9em; cursor: pointer;">
+                <input type="checkbox" required> 我了解本店為到店付款，送出後即開始製作，不可取消。
+            </label>
+        </div>
+
+        <button type="submit" class="btn-submit">確認無誤，送出訂單</button>
+    </form>
+    
+    <a href="index.html" class="back-link">← 返回菜單重新看</a>
+</div>
+
+<!-- 這裡就是 JavaScript 魔法的區域 -->
+<script>
+    // 紀錄目前總共有幾碗麵
+    let bowlCount = 1;
+
+    // 當按下「新增一碗拉麵」時會執行的動作
+    function addBowl() {
+        bowlCount++; // 數量加 1
+        
+        // 找到要塞入新拉麵的容器
+        const orderList = document.getElementById('order-list');
+        
+        // 建立一個新的區塊 (div)
+        const newItem = document.createElement('div');
+        newItem.className = 'order-item'; // 套用我們寫好的 CSS 樣式
+        
+        // 把裡面的 HTML 標籤寫進去 (注意 name="noodle_${bowlCount}" 讓每碗麵的單選按鈕獨立)
+        newItem.innerHTML = `
+            <h4>🍜 第 ${bowlCount} 碗</h4>
+            <button type="button" class="btn-remove" onclick="this.parentElement.remove()">❌ 移除</button>
+            <div class="form-group">
+                <select required>
+                    <option value="">請選擇拉麵口味...</option>
+                    <option value="pork">招牌濃厚豚骨拉麵 (NT$220)</option>
+                    <option value="chicken">松露舒肥雞白湯拉麵 (NT$240)</option>
+                    <option value="beef">炙燒雪花牛醬油拉麵 (NT$260)</option>
+                    <option value="yuzu">柚子鹽味清湯拉麵 (NT$200)</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.9em;">客製化選項 (麵條硬度)</label>
+                <label class="radio-label"><input type="radio" name="noodle_${bowlCount}" value="hard"> 偏硬</label>
+                <label class="radio-label"><input type="radio" name="noodle_${bowlCount}" value="normal" checked> 正常</label>
+                <label class="radio-label"><input type="radio" name="noodle_${bowlCount}" value="soft"> 偏軟</label>
+            </div>
+        `;
+        
+        // 把做好的新區塊塞進網頁裡
+        orderList.appendChild(newItem);
+    }
+</script>
+
+</body>
+</html>
