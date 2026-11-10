@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易查詢綠色商店</title>
+    <style>
+        /* 基礎版面設定 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        /* 標題區塊 */
+        header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        /* 佈局容器 */
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 左側查詢與列表區 */
+        .sidebar {
+            width: 350px;
+            background-color: white;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            box-sizing: border-box;
+            z-index: 5;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        button.primary-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.primary-btn:hover:not(:disabled) {
+            background-color: #1b5e20;
+        }
+
+        button.primary-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* 狀態訊息 */
+        #status-msg {
+            margin-top: 15px;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: #d35400;
+        }
+        .error-text {
+            color: #e74c3c !important;
+        }
+
+        /* 列表區塊 */
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .store-item {
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background-color: #fafafa;
+            transition: 0.2s;
+        }
+        .store-item:hover {
+            border-color: #2e7d32;
+            background-color: #e8f5e9;
+        }
+        .store-title {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        .store-addr {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* 右側地圖與詳細資訊區 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 資訊卡設計 */
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none; /* 預設隱藏 */
+            transition: all 0.3s ease;
+        }
+        
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 10px;
+        }
+        
+        .info-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        /* 折疊按鈕 */
+        .toggle-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .toggle-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        /* 隱藏資訊時的 class */
+        .info-grid.hidden {
+            display: none;
+        }
+
+        .info-item {
+            font-size: 1em;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            display: block;
+            font-size: 0.85em;
+        }
+        .info-value {
+            color: #333;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* 地圖 iframe */
+        .map-container {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 底部授權資訊 */
+        footer {
+            background-color: #2c3e50;
+            color: #bdc3c7;
+            text-align: center;
+            padding: 12px;
+            font-size: 0.85em;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <header>簡易查詢綠色商店</header>
+
+    <main>
+        <!-- 左側面板 -->
+        <div class="sidebar">
+            <div class="form-group">
+                <label for="city-select">查詢縣市</label>
+                <select id="city-select">
+                    <option value="">-- 全台灣 --</option>
+                    <option value="基隆">基隆市</option>
+                    <option value="臺北">臺北市</option>
+                    <option value="新北">新北市</option>
+                    <option value="桃園">桃園市</option>
+                    <option value="新竹">新竹縣市</option>
+                    <option value="苗栗">苗栗縣</option>
+                    <option value="臺中">臺中市</option>
+                    <option value="彰化">彰化縣</option>
+                    <option value="南投">南投縣</option>
+                    <option value="雲林">雲林縣</option>
+                    <option value="嘉義">嘉義縣市</option>
+                    <option value="臺南">臺南市</option>
+                    <option value="高雄">高雄市</option>
+                    <option value="屏東">屏東縣</option>
+                    <option value="宜蘭">宜蘭縣</option>
+                    <option value="花蓮">花蓮縣</option>
+                    <option value="臺東">臺東縣</option>
+                    <option value="澎湖">澎湖縣</option>
+                    <option value="金門">金門縣</option>
+                    <option value="連江">連江縣</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="keyword-input">商店名稱關鍵字</label>
+                <input type="text" id="keyword-input" placeholder="例如：全聯、機車行">
+            </div>
+            
+            <button id="search-btn" class="primary-btn" disabled>資料載入中...</button>
+            <div id="status-msg">正在向環境部要求資料...</div>
+
+            <div class="list-container" id="store-list">
+                <!-- 商店列表將會產生在這裡 -->
+            </div>
+        </div>
+
+        <!-- 右側主畫面 -->
+        <div class="content-area">
+            <!-- 詳細資訊卡片 -->
+            <div class="info-card" id="info-card">
+                <div class="info-header">
+                    <h2 id="dt-name">商店名稱</h2>
+                    <button id="toggle-info-btn" class="toggle-btn">隱藏資訊 ▲</button>
+                </div>
+                <div class="info-grid" id="info-grid">
+                    <div class="info-item"><span class="info-label">類別 (classtype)</span><span class="info-value" id="dt-class"></span></div>
+                    <div class="info-item"><span class="info-label">標章編號 (flagno)</span><span class="info-value" id="dt-flagno"></span></div>
+                    <div class="info-item"><span class="info-label">商店編號 (storeno)</span><span class="info-value" id="dt-storeno"></span></div>
+                    <div class="info-item"><span class="info-label">聯絡人 (undertaker)</span><span class="info-value" id="dt-undertaker"></span></div>
+                    <div class="info-item"><span class="info-label">聯絡電話 (contacttel)</span><span class="info-value" id="dt-tel"></span></div>
+                    <div class="info-item"><span class="info-label">統一編號 (taxno)</span><span class="info-value" id="dt-taxno"></span></div>
+                    <div class="info-item full-width"><span class="info-label">聯絡地址 (storeaddr)</span><span class="info-value" id="dt-addr"></span></div>
+                </div>
+            </div>
+
+            <!-- 地圖區域 -->
+            <div class="map-container">
+                <iframe id="map-frame" src="https://maps.google.com/maps?q=台灣&t=&z=7&ie=UTF8&iwloc=&output=embed"></iframe>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        資料來源：環境部開放資料平臺 | 授權說明：政府資料開放授權條款 (Open Government Data License, version 1.0)
+    </footer>
+
+    <script>
+        // 全域變數存放抓回來的原始資料
+        let storesData = [];
+
+        // 頁面載入時執行抓取資料
+        window.onload = async function() {
+            const btn = document.getElementById('search-btn');
+            const statusMsg = document.getElementById('status-msg');
+            
+            // 替換掉網址中的空白為 %20 以避免請求錯誤
+            const apiUrl = 'https://data.moenv.gov.tw/api/v2/gp_p_01?api_key=af57253c-e838-46da-a1f5-12b43afd75f3&limit=1000&sort=ImportDate%20desc&format=JSON';
+
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤狀態碼：${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // 環境部 API v2 的陣列通常包在 records 裡
+                storesData = data.records || data;
+
+                // 將數字文字轉型，依據 flagno 進行排序
+                storesData.sort((a, b) => {
+                    const numA = Number(a.flagno) || 0;
+                    const numB = Number(b.flagno) || 0;
+                    return numA - numB;
+                });
+
+                // 更新狀態與按鈕
+                statusMsg.style.color = '#2e7d32';
+                statusMsg.textContent = `成功載入 ${storesData.length} 筆資料`;
+                btn.disabled = false;
+                btn.textContent = '搜尋店家';
+
+                // 首次載入直接渲染全部列表
+                renderList(storesData);
+
+            } catch (error) {
+                console.error('API 請求失敗:', error);
+                statusMsg.className = 'error-text';
+                statusMsg.textContent = `出錯處理：載入失敗，請檢查網路。(${error.message})`;
+                btn.textContent = '無法搜尋';
+            }
+        };
+
+        // 搜尋按鈕事件綁定
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const city = document.getElementById('city-select').value;
+            const keyword = document.getElementById('keyword-input').value.trim().toLowerCase();
+            
+            // 執行過濾
+            const filteredData = storesData.filter(store => {
+                const addr = store.storeaddr || '';
+                const name = store.storename || '';
+                
+                const matchCity = addr.includes(city);
+                const matchKeyword = name.toLowerCase().includes(keyword);
+                
+                return matchCity && matchKeyword;
+            });
+            
+            renderList(filteredData);
+            document.getElementById('status-msg').textContent = `搜尋結果：共找到 ${filteredData.length} 筆資料`;
+        });
+
+        // 渲染左側商店列表
+        function renderList(dataArray) {
+            const listContainer = document.getElementById('store-list');
+            listContainer.innerHTML = ''; // 清空舊內容
+
+            if (dataArray.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color:#7f8c8d; padding:20px;">找不到符合的商店</div>';
+                return;
+            }
+
+            dataArray.forEach(store => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'store-item';
+                
+                const storeName = store.storename || '未提供商店名稱';
+                const storeAddr = store.storeaddr || '無地址資訊';
+                
+                itemDiv.innerHTML = `
+                    <div class="store-title">${storeName}</div>
+                    <div class="store-addr">${storeAddr}</div>
+                `;
+                
+                // 綁定點擊事件顯示詳細資訊
+                itemDiv.onclick = () => showStoreDetails(store);
+                
+                listContainer.appendChild(itemDiv);
+            });
+        }
+
+        // 折疊/展開資訊卡功能
+        const toggleBtn = document.getElementById('toggle-info-btn');
+        const infoGrid = document.getElementById('info-grid');
+        
+        toggleBtn.addEventListener('click', () => {
+            infoGrid.classList.toggle('hidden');
+            if (infoGrid.classList.contains('hidden')) {
+                toggleBtn.textContent = '顯示資訊 ▼';
+            } else {
+                toggleBtn.textContent = '隱藏資訊 ▲';
+            }
+        });
+
+        // 顯示右側詳細資訊與更新地圖
+        function showStoreDetails(store) {
+            // 顯示資訊卡
+            document.getElementById('info-card').style.display = 'block';
+
+            // 每次點擊新店家時，自動展開資訊卡
+            infoGrid.classList.remove('hidden');
+            toggleBtn.textContent = '隱藏資訊 ▲';
+
+            // 填入所有指定欄位
+            document.getElementById('dt-name').textContent = store.storename || '無';
+            document.getElementById('dt-class').textContent = store.classtype || '無';
+            document.getElementById('dt-flagno').textContent = store.flagno || '無';
+            document.getElementById('dt-storeno').textContent = store.storeno || '無';
+            document.getElementById('dt-undertaker').textContent = store.undertaker || '無';
+            document.getElementById('dt-tel').textContent = store.contacttel || '無';
+            document.getElementById('dt-addr').textContent = store.storeaddr || '無';
+            
+            // 處理統一編號為空的情況
+            const tax = store.taxno ? store.taxno.trim() : '';
+            document.getElementById('dt-taxno').textContent = tax === '' ? '無' : tax;
+
+            // 更新 Google Maps iframe
+            const mapFrame = document.getElementById('map-frame');
+            // 如果有地址則用地址搜尋，否則用店名
+            const searchQuery = store.storeaddr ? store.storeaddr : store.storename;
+            
+            // 將查詢字串進行 URL 編碼
+            mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(searchQuery)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+        }
+    </script>
+</body>
+</html>
